@@ -1,0 +1,7 @@
+[package]
+name = "apni"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+apn = { path = "../apn" }
