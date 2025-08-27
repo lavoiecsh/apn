@@ -6,7 +6,16 @@ Array Polish Notation is a stack-based programming language
 - strings
 - arrays `[]`
 - variables
-- functions
+- macros
+
+## Functions
+- add +
+- subtract -
+- multiply *
+- divide /
+- modulo %
+- floor
+- ceiling
 
 ## Packages
 ### apn
