@@ -36,7 +36,7 @@ impl Environment {
         for token in tokens {
             match token {
                 Token::Element(e) => self.stack.push(e),
-                Token::Function(f) => f(self)?,
+                Token::Function(f) => f.execute(self)?,
             }
         }
         Ok(())

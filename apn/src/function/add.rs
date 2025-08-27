@@ -1,6 +1,6 @@
 use crate::element::Element::{Float, Integer};
-use crate::Environment;
 use crate::environment::EvaluationError;
+use crate::Environment;
 
 pub(crate) fn add(environment: &mut Environment) -> Result<(), EvaluationError> {
     let b = environment.pop()?;
@@ -15,8 +15,8 @@ pub(crate) fn add(environment: &mut Environment) -> Result<(), EvaluationError> 
 
 #[cfg(test)]
 mod tests {
-    use std::assert_matches::assert_matches;
     use super::*;
+    use std::assert_matches::assert_matches;
 
     #[test]
     fn adds_2_integers_into_integer() {
