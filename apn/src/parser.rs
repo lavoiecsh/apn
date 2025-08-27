@@ -1,6 +1,6 @@
 use crate::element::Element;
 use crate::environment::{Environment, EvaluationError};
-use crate::function::{add, ceiling, divide, floor, modulo, multiply, subtract};
+use crate::function::*;
 
 pub(crate) fn parse(input: impl Into<String>) -> Result<Vec<Token>, ParserError> {
     input.into()
@@ -16,7 +16,7 @@ pub enum Token {
     Function(fn(&mut Environment) -> Result<(), EvaluationError>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ParserError {
     InvalidElement(String),
     InvalidToken(String),
@@ -29,11 +29,6 @@ impl TryFrom<&str> for Token {
         match value {
             "add" | "+" => Ok(Token::Function(add)),
             "subtract" | "-" => Ok(Token::Function(subtract)),
-            "multiply" | "*" => Ok(Token::Function(multiply)),
-            "divide" | "/" => Ok(Token::Function(divide)),
-            "modulo" | "%" => Ok(Token::Function(modulo)),
-            "floor" => Ok(Token::Function(floor)),
-            "ceiling" => Ok(Token::Function(ceiling)),
             _ => {
                 if let Ok(element) = Element::try_from(value) {
                     Ok(Token::Element(element))

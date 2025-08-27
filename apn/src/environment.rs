@@ -72,7 +72,7 @@ enum EvaluationOperation {
     Pop(Element),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum EvaluationError {
     Parser(ParserError),
     EmptyStack,
@@ -104,7 +104,6 @@ impl From<ElementError> for EvaluationError {
 mod tests {
     use super::*;
     use std::assert_matches::assert_matches;
-    use crate::element::Element;
 
     #[test]
     fn evaluates_a_simple_function() {
