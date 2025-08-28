@@ -2,7 +2,7 @@ use crate::element::Element::{Float, Integer};
 use crate::Environment;
 use crate::environment::EvaluationError;
 
-pub(crate) fn subtract(environment: &mut Environment) -> Result<(), EvaluationError> {
+pub(super) fn subtract(environment: &mut Environment) -> Result<(), EvaluationError> {
     let b = environment.pop()?;
     let a = environment.pop()?;
     environment.push(match (a, b) {

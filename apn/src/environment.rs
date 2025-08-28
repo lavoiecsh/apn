@@ -42,13 +42,13 @@ impl Environment {
         Ok(())
     }
 
-    pub(crate) fn push(&mut self, element: Element) -> Result<(), EvaluationError> {
+    pub(super) fn push(&mut self, element: Element) -> Result<(), EvaluationError> {
         self.evaluation_history.push(EvaluationOperation::Push);
         self.stack.push(element);
         Ok(())
     }
 
-    pub(crate) fn pop(&mut self) -> Result<Element, EvaluationError> {
+    pub(super) fn pop(&mut self) -> Result<Element, EvaluationError> {
         if self.stack.is_empty() {
             Err(EvaluationError::EmptyStack)
         } else {
@@ -77,6 +77,7 @@ pub enum EvaluationError {
     Parser(ParserError),
     EmptyStack,
     Element(ElementError),
+    DivisionByZero,
 }
 
 impl Display for EvaluationError {

@@ -1,19 +1,23 @@
 mod add;
+mod pop;
 mod subtract;
+mod multiply;
+mod divide;
 
-use crate::environment::EvaluationError;
+use crate::{Environment, EvaluationError};
+
 use crate::function::add::add;
+use crate::function::divide::divide;
+use crate::function::multiply::multiply;
+use crate::function::pop::pop;
 use crate::function::subtract::subtract;
-use crate::Environment;
 
 #[derive(Debug)]
-pub(crate) struct Function {
-    f: fn (&mut Environment) -> Result<(), EvaluationError>,
-}
+pub(super) struct Function(fn (&mut Environment) -> Result<(), EvaluationError>);
 
 impl Function {
-    pub(crate) fn execute(&self, environment: &mut Environment) -> Result<(), EvaluationError> {
-        (self.f)(environment)
+    pub(super) fn execute(&self, environment: &mut Environment) -> Result<(), EvaluationError> {
+        self.0(environment)
     }
 }
 
@@ -25,8 +29,11 @@ impl TryFrom<&str> for Function {
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
-            "add" | "+" => Ok(Function { f: add }),
-            "subtract" | "-" => Ok(Function { f: subtract }),
+            "add" | "+" => Ok(Function(add)),
+            "subtract" | "-" => Ok(Function(subtract)),
+            "multiply" | "*" => Ok(Function(multiply)),
+            "divide" | "/" => Ok(Function(divide)),
+            "pop" => Ok(Function(pop)),
             _ => Err(()),
         }
     }

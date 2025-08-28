@@ -1,7 +1,7 @@
 use crate::element::Element;
 use crate::function::Function;
 
-pub(crate) fn parse(input: impl Into<String>) -> Result<Vec<Token>, ParserError> {
+pub(super) fn parse(input: impl Into<String>) -> Result<Vec<Token>, ParserError> {
     input.into()
         .split(" ")
         .filter(|s| !s.is_empty())

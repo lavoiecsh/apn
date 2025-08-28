@@ -2,7 +2,7 @@ use crate::element::Element::{Float, Integer};
 use crate::environment::EvaluationError;
 use crate::Environment;
 
-pub(crate) fn add(environment: &mut Environment) -> Result<(), EvaluationError> {
+pub(super) fn add(environment: &mut Environment) -> Result<(), EvaluationError> {
     let b = environment.pop()?;
     let a = environment.pop()?;
     environment.push(match (a, b) {
@@ -20,23 +20,23 @@ mod tests {
 
     #[test]
     fn adds_2_integers_into_integer() {
-        let mut environment = Environment::new();
-        environment.push(Integer(1)).unwrap();
-        environment.push(Integer(2)).unwrap();
-        let result = add(&mut environment);
+        let mut env = Environment::new();
+        env.push(Integer(1)).unwrap();
+        env.push(Integer(2)).unwrap();
+        let result = env.evaluate("add");
         assert_matches!(result, Ok(()));
-        assert_eq!(environment.stack_len(), 1);
-        assert_eq!(environment.pop(), Ok(Integer(3)));
+        assert_eq!(env.stack_len(), 1);
+        assert_eq!(env.pop(), Ok(Integer(3)));
     }
 
     #[test]
     fn adds_2_floats_into_float() {
-        let mut environment = Environment::new();
-        environment.push(Float(1.1)).unwrap();
-        environment.push(Float(2.4)).unwrap();
-        let result = add(&mut environment);
+        let mut env = Environment::new();
+        env.push(Float(1.1)).unwrap();
+        env.push(Float(2.4)).unwrap();
+        let result = add(&mut env);
         assert_matches!(result, Ok(()));
-        assert_eq!(environment.stack_len(), 1);
-        assert_eq!(environment.pop(), Ok(Float(3.5)));
+        assert_eq!(env.stack_len(), 1);
+        assert_eq!(env.pop(), Ok(Float(3.5)));
     }
 }
