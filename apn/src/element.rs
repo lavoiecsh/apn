@@ -1,5 +1,6 @@
 #[derive(Debug, PartialEq, Clone)]
 pub enum Element {
+    Boolean(bool),
     Integer(i64),
     Float(f64),
 }

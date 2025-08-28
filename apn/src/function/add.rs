@@ -10,6 +10,7 @@ pub(super) fn add(environment: &mut Environment) -> Result<(), EvaluationError> 
         (Float(a), Float(b)) => Float(a + b),
         (Integer(a), Float(b)) => Float(a as f64 + b),
         (Float(a), Integer(b)) => Float(a + b as f64),
+        _ => return Err(EvaluationError::FunctionNotApplicable),
     })
 }
 

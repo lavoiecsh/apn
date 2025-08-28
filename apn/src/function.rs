@@ -3,10 +3,12 @@ mod pop;
 mod subtract;
 mod multiply;
 mod divide;
+mod compare;
 
 use crate::{Environment, EvaluationError};
 
 use crate::function::add::add;
+use crate::function::compare::{equal, greater, greater_equal, less, less_equal};
 use crate::function::divide::divide;
 use crate::function::multiply::multiply;
 use crate::function::pop::pop;
@@ -33,6 +35,11 @@ impl TryFrom<&str> for Function {
             "subtract" | "-" => Ok(Function(subtract)),
             "multiply" | "*" => Ok(Function(multiply)),
             "divide" | "/" => Ok(Function(divide)),
+            "less" | "<" => Ok(Function(less)),
+            "less_equal" | "<=" => Ok(Function(less_equal)),
+            "equal" | "==" => Ok(Function(equal)),
+            "greater" | ">" => Ok(Function(greater)),
+            "greater_equal" | ">=" => Ok(Function(greater_equal)),
             "pop" => Ok(Function(pop)),
             _ => Err(()),
         }

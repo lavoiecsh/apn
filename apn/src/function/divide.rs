@@ -6,6 +6,7 @@ pub(super) fn divide(environment: &mut Environment) -> Result<(), EvaluationErro
     if match b {
         Integer(b) => b == 0,
         Float(b) => b == 0.0,
+        _ => return Err(EvaluationError::FunctionNotApplicable),
     } {
         return Err(EvaluationError::DivisionByZero);
     }
@@ -15,6 +16,7 @@ pub(super) fn divide(environment: &mut Environment) -> Result<(), EvaluationErro
         (Float(a), Float(b)) => Float(a / b),
         (Integer(a), Float(b)) => Float(a as f64 / b),
         (Float(a), Integer(b)) => Float(a / b as f64),
+        _ => return Err(EvaluationError::FunctionNotApplicable),
     })
 }
 

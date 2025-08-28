@@ -78,6 +78,7 @@ pub enum EvaluationError {
     EmptyStack,
     Element(ElementError),
     DivisionByZero,
+    FunctionNotApplicable,
 }
 
 impl Display for EvaluationError {

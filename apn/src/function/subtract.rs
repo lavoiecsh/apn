@@ -10,6 +10,7 @@ pub(super) fn subtract(environment: &mut Environment) -> Result<(), EvaluationEr
         (Float(a), Float(b)) => Float(a - b),
         (Float(a), Integer(b)) => Float(a - b as f64),
         (Integer(a), Float(b)) => Float(a as f64 - b),
+        _ => return Err(EvaluationError::FunctionNotApplicable),
     })
 }
 
