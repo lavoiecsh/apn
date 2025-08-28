@@ -9,13 +9,19 @@ Array Polish Notation is a stack-based programming language
 - macros
 
 ## Functions
-- add +
-- subtract -
-- multiply *
-- divide /
-- modulo %
-- floor
-- ceiling
+- add `+`
+- subtract `-`
+- multiply `*`
+- divide `/`
+- modulo `%`
+- less `<`
+- less_equal `<=`
+- equal `==`
+- greater `>`
+- greater_equal `>=`
+
+## Control Flow
+- if: `<boolean> if <then> <else>`
 
 ## Packages
 ### apn
