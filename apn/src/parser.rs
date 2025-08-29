@@ -1,5 +1,6 @@
 use crate::element::Element;
 use crate::function::Function;
+use crate::procedure::Procedure;
 
 pub(super) fn parse(input: impl Into<String>) -> Result<Vec<Token>, ParserError> {
     input.into()
@@ -13,6 +14,7 @@ pub(super) fn parse(input: impl Into<String>) -> Result<Vec<Token>, ParserError>
 pub enum Token {
     Element(Element),
     Function(Function),
+    Procedure(Procedure),
 }
 
 #[derive(Debug, PartialEq)]
@@ -24,7 +26,9 @@ impl TryFrom<&str> for Token {
     type Error = ParserError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        if let Ok(function) = Function::try_from(value) {
+        if let Ok(procedure) = Procedure::try_from(value) {
+            Ok(Token::Procedure(procedure))
+        } else if let Ok(function) = Function::try_from(value) {
             Ok(Token::Function(function))
         } else if let Ok(element) = Element::try_from(value) {
             Ok(Token::Element(element))

@@ -34,12 +34,17 @@ impl Environment {
 
     fn evaluate_tokens(&mut self, tokens: Vec<Token>) -> Result<(), EvaluationError> {
         for token in tokens {
-            match token {
-                Token::Element(e) => self.stack.push(e),
-                Token::Function(f) => f.execute(self)?,
-            }
+            self.evaluate_token(&token)?
         }
         Ok(())
+    }
+    
+    pub(super) fn evaluate_token(&mut self, token: &Token) -> Result<(), EvaluationError> {
+        match token {
+            Token::Element(e) => Ok(self.stack.push(e.clone())),
+            Token::Function(f) => f.execute(self),
+            Token::Procedure(p) => p.execute(self),
+        }
     }
 
     pub(super) fn push(&mut self, element: Element) -> Result<(), EvaluationError> {
