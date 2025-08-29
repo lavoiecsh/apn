@@ -38,10 +38,10 @@ impl Environment {
         }
         Ok(())
     }
-    
+
     pub(super) fn evaluate_token(&mut self, token: &Token) -> Result<(), EvaluationError> {
         match token {
-            Token::Element(e) => Ok(self.stack.push(e.clone())),
+            Token::Element(e) => self.push(e.clone()),
             Token::Function(f) => f.execute(self),
             Token::Procedure(p) => p.execute(self),
         }
