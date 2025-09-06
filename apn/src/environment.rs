@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 use crate::element::{Element, ElementError};
@@ -5,6 +6,7 @@ use crate::parser::{parse, ParserError, Token};
 
 pub struct Environment {
     stack: Vec<Element>,
+    variables: HashMap<String, Element>,
     evaluation_history: Vec<EvaluationOperation>,
 }
 
@@ -12,6 +14,7 @@ impl Environment {
     pub fn new() -> Self {
         Self {
             stack: Vec::new(),
+            variables: HashMap::new(),
             evaluation_history: Vec::new(),
         }
     }
