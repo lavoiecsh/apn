@@ -2,7 +2,7 @@ use crate::Environment;
 use crate::environment::EvaluationError;
 
 pub(super) fn pop(environment: &mut Environment) -> Result<(), EvaluationError> {
-    environment.pop().map(|_| ())
+    environment.pop_value().map(|_| ())
 }
 
 #[cfg(test)]

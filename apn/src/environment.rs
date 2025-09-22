@@ -66,6 +66,32 @@ impl Environment {
         }
     }
 
+    pub(super) fn pop_value(&mut self) -> Result<Element, EvaluationError> {
+        let top = self.pop()?;
+        if let Element::Variable(name) = top {
+            self.resolve_value(&name)
+        } else {
+            Ok(top)
+        }
+    }
+
+    fn resolve_value(&self, name: &String) -> Result<Element, EvaluationError> {
+        if let Some(element) = self.variables.get(name) {
+            if let Element::Variable(name2) = element {
+                self.resolve_value(name2)
+            } else {
+                Ok(element.clone())
+            }
+        } else {
+            Err(EvaluationError::UndefinedVariable(name.clone()))
+        }
+    }
+
+    pub(super) fn assign(&mut self, variable: String, value: Element) -> Result<(), EvaluationError> {
+        self.variables.insert(variable, value);
+        Ok(())
+    }
+
     pub fn stack_len(&self) -> usize {
         self.stack.len()
     }
@@ -87,6 +113,9 @@ pub enum EvaluationError {
     Element(ElementError),
     DivisionByZero,
     FunctionNotApplicable,
+    UndefinedVariable(String),
+    InvalidStackElements,
+    CircularVariableReference,
 }
 
 impl Display for EvaluationError {

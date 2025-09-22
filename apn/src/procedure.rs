@@ -40,6 +40,6 @@ mod tests {
         let result = env.evaluate("3 double");
         assert_matches!(result, Ok(()));
         assert_eq!(env.stack_len(), 1);
-        assert_matches!(env.pop(), Ok(Integer(6)));
+        assert_matches!(env.pop_value(), Ok(Integer(6)));
     }
 }

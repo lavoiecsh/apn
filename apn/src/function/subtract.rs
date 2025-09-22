@@ -3,8 +3,8 @@ use crate::Environment;
 use crate::environment::EvaluationError;
 
 pub(super) fn subtract(environment: &mut Environment) -> Result<(), EvaluationError> {
-    let b = environment.pop()?;
-    let a = environment.pop()?;
+    let b = environment.pop_value()?;
+    let a = environment.pop_value()?;
     environment.push(match (a, b) {
         (Integer(a), Integer(b)) => Integer(a - b),
         (Float(a), Float(b)) => Float(a - b),
@@ -27,6 +27,6 @@ mod tests {
         let result = environment.evaluate("-");
         assert_matches!(result, Ok(()));
         assert_eq!(environment.stack_len(), 1);
-        assert_matches!(environment.pop(), Ok(Integer(-1)));
+        assert_matches!(environment.pop_value(), Ok(Integer(-1)));
     }
 }

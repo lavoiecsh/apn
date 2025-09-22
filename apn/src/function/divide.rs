@@ -2,7 +2,7 @@ use crate::{Environment, EvaluationError};
 use crate::element::Element::{Float, Integer};
 
 pub(super) fn divide(environment: &mut Environment) -> Result<(), EvaluationError> {
-    let b = environment.pop()?;
+    let b = environment.pop_value()?;
     if match b {
         Integer(b) => b == 0,
         Float(b) => b == 0.0,
@@ -10,7 +10,7 @@ pub(super) fn divide(environment: &mut Environment) -> Result<(), EvaluationErro
     } {
         return Err(EvaluationError::DivisionByZero);
     }
-    let a = environment.pop()?;
+    let a = environment.pop_value()?;
     environment.push(match (a, b) {
         (Integer(a), Integer(b)) => Float(a as f64 / b as f64),
         (Float(a), Float(b)) => Float(a / b),
@@ -33,7 +33,7 @@ mod tests {
         let result = env.evaluate("/");
         assert_matches!(result, Ok(()));
         assert_eq!(env.stack_len(), 1);
-        assert_matches!(env.pop(), Ok(Float(1.5)));
+        assert_matches!(env.pop_value(), Ok(Float(1.5)));
     }
 
     #[test]

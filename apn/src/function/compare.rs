@@ -2,8 +2,8 @@ use crate::element::Element::{Boolean, Float, Integer};
 use crate::{Environment, EvaluationError};
 
 pub(super) fn less(environment: &mut Environment) -> Result<(), EvaluationError> {
-    let b = environment.pop()?;
-    let a = environment.pop()?;
+    let b = environment.pop_value()?;
+    let a = environment.pop_value()?;
     environment.push(match (a, b) {
         (Integer(a), Integer(b)) => Boolean(a < b),
         (Integer(a), Float(b)) => Boolean((a as f64) < b),
@@ -14,8 +14,8 @@ pub(super) fn less(environment: &mut Environment) -> Result<(), EvaluationError>
 }
 
 pub(super) fn less_equal(environment: &mut Environment) -> Result<(), EvaluationError> {
-    let b = environment.pop()?;
-    let a = environment.pop()?;
+    let b = environment.pop_value()?;
+    let a = environment.pop_value()?;
     environment.push(match (a, b) {
         (Integer(a), Integer(b)) => Boolean(a <= b),
         (Integer(a), Float(b)) => Boolean((a as f64) <= b),
@@ -26,8 +26,8 @@ pub(super) fn less_equal(environment: &mut Environment) -> Result<(), Evaluation
 }
 
 pub(super) fn equal(environment: &mut Environment) -> Result<(), EvaluationError> {
-    let b = environment.pop()?;
-    let a = environment.pop()?;
+    let b = environment.pop_value()?;
+    let a = environment.pop_value()?;
     environment.push(match (a, b) {
         (Integer(a), Integer(b)) => Boolean(a == b),
         (Integer(a), Float(b)) => Boolean((a as f64) == b),
@@ -39,8 +39,8 @@ pub(super) fn equal(environment: &mut Environment) -> Result<(), EvaluationError
 }
 
 pub(super) fn greater(environment: &mut Environment) -> Result<(), EvaluationError> {
-    let b = environment.pop()?;
-    let a = environment.pop()?;
+    let b = environment.pop_value()?;
+    let a = environment.pop_value()?;
     environment.push(match (a, b) {
         (Integer(a), Integer(b)) => Boolean(a > b),
         (Integer(a), Float(b)) => Boolean((a as f64) > b),
@@ -51,8 +51,8 @@ pub(super) fn greater(environment: &mut Environment) -> Result<(), EvaluationErr
 }
 
 pub(super) fn greater_equal(environment: &mut Environment) -> Result<(), EvaluationError> {
-    let b = environment.pop()?;
-    let a = environment.pop()?;
+    let b = environment.pop_value()?;
+    let a = environment.pop_value()?;
     environment.push(match (a, b) {
         (Integer(a), Integer(b)) => Boolean(a >= b),
         (Integer(a), Float(b)) => Boolean((a as f64) >= b),

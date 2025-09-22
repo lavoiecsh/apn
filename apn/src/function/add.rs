@@ -3,8 +3,8 @@ use crate::environment::EvaluationError;
 use crate::Environment;
 
 pub(super) fn add(environment: &mut Environment) -> Result<(), EvaluationError> {
-    let b = environment.pop()?;
-    let a = environment.pop()?;
+    let b = environment.pop_value()?;
+    let a = environment.pop_value()?;
     environment.push(match (a, b) {
         (Integer(a), Integer(b)) => Integer(a + b),
         (Float(a), Float(b)) => Float(a + b),
@@ -27,7 +27,7 @@ mod tests {
         let result = env.evaluate("add");
         assert_matches!(result, Ok(()));
         assert_eq!(env.stack_len(), 1);
-        assert_eq!(env.pop(), Ok(Integer(3)));
+        assert_eq!(env.pop_value(), Ok(Integer(3)));
     }
 
     #[test]
@@ -38,6 +38,6 @@ mod tests {
         let result = add(&mut env);
         assert_matches!(result, Ok(()));
         assert_eq!(env.stack_len(), 1);
-        assert_eq!(env.pop(), Ok(Float(3.5)));
+        assert_eq!(env.pop_value(), Ok(Float(3.5)));
     }
 }

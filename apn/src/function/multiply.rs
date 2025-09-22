@@ -2,8 +2,8 @@ use crate::{Environment, EvaluationError};
 use crate::element::Element::{Float, Integer};
 
 pub(super) fn multiply(environment: &mut Environment) -> Result<(), EvaluationError> {
-    let b = environment.pop()?;
-    let a = environment.pop()?;
+    let b = environment.pop_value()?;
+    let a = environment.pop_value()?;
     environment.push(match (a, b) {
         (Integer(a), Integer(b)) => Integer(a * b),
         (Integer(a), Float(b)) => Float(a as f64 * b),
@@ -26,6 +26,6 @@ mod tests {
         let result = env.evaluate("*");
         assert_matches!(result, Ok(()));
         assert_eq!(env.stack_len(), 1);
-        assert_matches!(env.pop(), Ok(Float(7.)));
+        assert_matches!(env.pop_value(), Ok(Float(7.)));
     }
 }
