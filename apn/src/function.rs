@@ -6,6 +6,7 @@ mod divide;
 mod compare;
 mod assign;
 mod control_if;
+mod repeat;
 
 use crate::{Environment, EvaluationError};
 
@@ -16,6 +17,7 @@ use crate::function::control_if::control_if;
 use crate::function::divide::divide;
 use crate::function::multiply::multiply;
 use crate::function::pop::pop;
+use crate::function::repeat::repeat;
 use crate::function::subtract::subtract;
 
 #[derive(Debug)]
@@ -47,6 +49,7 @@ impl TryFrom<&str> for Function {
             "pop" => Ok(Function(pop)),
             "assign" | "=" => Ok(Function(assign)),
             "if" => Ok(Function(control_if)),
+            "repeat" => Ok(Function(repeat)),
             _ => Err(()),
         }
     }
