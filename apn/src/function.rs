@@ -5,12 +5,14 @@ mod multiply;
 mod divide;
 mod compare;
 mod assign;
+mod control_if;
 
 use crate::{Environment, EvaluationError};
 
 use crate::function::add::add;
 use crate::function::assign::assign;
 use crate::function::compare::{equal, greater, greater_equal, less, less_equal};
+use crate::function::control_if::control_if;
 use crate::function::divide::divide;
 use crate::function::multiply::multiply;
 use crate::function::pop::pop;
@@ -44,6 +46,7 @@ impl TryFrom<&str> for Function {
             "greater_equal" | ">=" => Ok(Function(greater_equal)),
             "pop" => Ok(Function(pop)),
             "assign" | "=" => Ok(Function(assign)),
+            "if" => Ok(Function(control_if)),
             _ => Err(()),
         }
     }
