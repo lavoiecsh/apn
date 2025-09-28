@@ -35,23 +35,21 @@ impl Environment {
         }
     }
 
-    fn evaluate_elements(&mut self, element: Vec<Element>) -> Result<(), EvaluationError> {
-        for token in element {
-            self.evaluate_element(&token)?
+    fn evaluate_elements(&mut self, elements: Vec<Element>) -> Result<(), EvaluationError> {
+        for element in elements {
+            self.push(element)?;
         }
         Ok(())
     }
 
-    pub(super) fn evaluate_element(&mut self, element: &Element) -> Result<(), EvaluationError> {
-        match element {
-            Element::Function(f) => f.execute(self),
-            _ => self.push(element.clone()),
-        }
-    }
-
     pub(super) fn push(&mut self, element: Element) -> Result<(), EvaluationError> {
-        self.evaluation_history.push(EvaluationOperation::Push);
-        self.stack.push(element);
+        match element {
+            Element::Function(f) => f.execute(self)?,
+            _ => {
+                self.evaluation_history.push(EvaluationOperation::Push);
+                self.stack.push(element);
+            }
+        }
         Ok(())
     }
 
