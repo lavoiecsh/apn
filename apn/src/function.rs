@@ -20,8 +20,8 @@ use crate::function::pop::pop;
 use crate::function::repeat::repeat;
 use crate::function::subtract::subtract;
 
-#[derive(Debug)]
-pub(super) struct Function(fn (&mut Environment) -> Result<(), EvaluationError>);
+#[derive(Debug, PartialEq, Clone)]
+pub struct Function(fn (&mut Environment) -> Result<(), EvaluationError>);
 
 impl Function {
     pub(super) fn execute(&self, environment: &mut Environment) -> Result<(), EvaluationError> {

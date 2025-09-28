@@ -1,9 +1,13 @@
+use crate::function::Function;
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum Element {
     Boolean(bool),
     Integer(i64),
     Float(f64),
     Variable(String),
+    Function(Function),
+    Array(Vec<Element>),
 }
 
 #[derive(Debug, PartialEq)]
@@ -23,6 +27,9 @@ impl TryFrom<&str> for Element {
         if s.len() == 2 {
             return Ok(Element::Variable(s[1].into()));
         }
+        if let Ok(function) = Function::try_from(value) {
+            return Ok(Element::Function(function));
+        }
         if let Ok(integer) = value.parse::<i64>() {
             return Ok(Element::Integer(integer));
         }
@@ -35,8 +42,8 @@ impl TryFrom<&str> for Element {
 
 #[cfg(test)]
 mod tests {
-    use std::assert_matches::assert_matches;
     use super::*;
+    use std::assert_matches::assert_matches;
 
     #[test]
     fn parses_true_as_boolean() {

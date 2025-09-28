@@ -1,8 +1,8 @@
+use crate::element::{Element, ElementError};
+use crate::parser::{parse, ParserError};
 use std::collections::HashMap;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
-use crate::element::{Element, ElementError};
-use crate::parser::{parse, ParserError, Token};
 
 pub struct Environment {
     stack: Vec<Element>,
@@ -21,8 +21,8 @@ impl Environment {
 
     pub fn evaluate(&mut self, input: impl Into<String>) -> Result<(), EvaluationError> {
         self.evaluation_history.clear();
-        let tokens = parse(input)?;
-        if let Err(e) = self.evaluate_tokens(tokens) {
+        let elements = parse(input)?;
+        if let Err(e) = self.evaluate_elements(elements) {
             for item in self.evaluation_history.iter().rev() {
                 match item {
                     EvaluationOperation::Push => { self.stack.pop(); }
@@ -35,18 +35,17 @@ impl Environment {
         }
     }
 
-    fn evaluate_tokens(&mut self, tokens: Vec<Token>) -> Result<(), EvaluationError> {
-        for token in tokens {
-            self.evaluate_token(&token)?
+    fn evaluate_elements(&mut self, element: Vec<Element>) -> Result<(), EvaluationError> {
+        for token in element {
+            self.evaluate_element(&token)?
         }
         Ok(())
     }
 
-    pub(super) fn evaluate_token(&mut self, token: &Token) -> Result<(), EvaluationError> {
-        match token {
-            Token::Element(e) => self.push(e.clone()),
-            Token::Function(f) => f.execute(self),
-            Token::Procedure(p) => p.execute(self),
+    pub(super) fn evaluate_element(&mut self, element: &Element) -> Result<(), EvaluationError> {
+        match element {
+            Element::Function(f) => f.execute(self),
+            _ => self.push(element.clone()),
         }
     }
 
@@ -159,5 +158,19 @@ mod tests {
         assert_matches!(env.evaluate("1 2 3"), Ok(()));
         assert_matches!(env.evaluate("+ + +"), Err(EvaluationError::EmptyStack));
         assert_eq!(env.stack, vec![Element::Integer(1), Element::Integer(2), Element::Integer(3)]);
+    }
+
+    #[test]
+    fn stores_array_as_variable() {
+        let mut env = Environment::new();
+        let result = env.evaluate("[1 2 +] $test =");
+        assert_matches!(result, Ok(()));
+        assert_eq!(env.stack_len(), 0);
+        assert_matches!(env.variables.get("test"), Some(&Element::Array(_)));
+        if let Some(Element::Array(array)) = env.variables.get("test") {
+            assert_matches!(&array[0], Element::Integer(1));
+            assert_matches!(&array[1], Element::Integer(2));
+            assert_matches!(&array[2], Element::Function(_));
+        }
     }
 }
