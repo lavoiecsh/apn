@@ -8,10 +8,12 @@ mod assign;
 mod control_if;
 mod repeat;
 mod eval;
+mod append;
 
 use crate::{Environment, EvaluationError};
 
 use crate::function::add::add;
+use crate::function::append::append;
 use crate::function::assign::assign;
 use crate::function::compare::{equal, greater, greater_equal, less, less_equal};
 use crate::function::control_if::control_if;
@@ -53,6 +55,7 @@ impl TryFrom<&str> for Function {
             "if" => Ok(Function(control_if)),
             "repeat" => Ok(Function(repeat)),
             "eval" => Ok(Function(eval)),
+            "append" => Ok(Function(append)),
             _ => Err(()),
         }
     }
