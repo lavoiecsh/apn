@@ -21,7 +21,7 @@ use crate::function::divide::divide;
 use crate::function::eval::eval;
 use crate::function::multiply::multiply;
 use crate::function::pop::pop;
-use crate::function::repeat::repeat;
+use crate::function::repeat::{repeat, repeat_eval};
 use crate::function::subtract::subtract;
 
 #[derive(Debug, PartialEq, Clone)]
@@ -53,8 +53,9 @@ impl TryFrom<&str> for Function {
             "pop" => Ok(Function(pop)),
             "assign" | "=" => Ok(Function(assign)),
             "if" => Ok(Function(control_if)),
-            "repeat" => Ok(Function(repeat)),
             "eval" => Ok(Function(eval)),
+            "repeat" => Ok(Function(repeat)),
+            "repeat_eval" => Ok(Function(repeat_eval)),
             "append" => Ok(Function(append)),
             _ => Err(()),
         }
