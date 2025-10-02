@@ -53,7 +53,7 @@ impl TryFrom<&str> for Function {
             "pop" => Ok(Function(pop)),
             "assign" | "=" => Ok(Function(assign)),
             "if" => Ok(Function(control_if)),
-            "eval" => Ok(Function(eval)),
+            "eval" | "." => Ok(Function(eval)),
             "repeat" => Ok(Function(repeat)),
             "repeat_eval" => Ok(Function(repeat_eval)),
             "append" => Ok(Function(append)),

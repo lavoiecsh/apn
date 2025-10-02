@@ -6,3 +6,4 @@ mod function;
 mod parser;
 
 pub use environment::{Environment, EvaluationError};
+pub use element::Element;
