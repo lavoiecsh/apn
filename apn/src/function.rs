@@ -9,6 +9,7 @@ mod control_if;
 mod repeat;
 mod eval;
 mod append;
+mod rotate;
 
 use crate::{Environment, EvaluationError};
 
@@ -23,6 +24,7 @@ use crate::function::multiply::multiply;
 use crate::function::pop::pop;
 use crate::function::repeat::{repeat, repeat_eval};
 use crate::function::subtract::subtract;
+use crate::function::rotate::rotate;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Function(fn (&mut Environment) -> Result<(), EvaluationError>);
@@ -51,6 +53,7 @@ impl TryFrom<&str> for Function {
             "greater" | ">" => Ok(Function(greater)),
             "greater_equal" | ">=" => Ok(Function(greater_equal)),
             "pop" => Ok(Function(pop)),
+            "rotate" => Ok(Function(rotate)),
             "assign" | "=" => Ok(Function(assign)),
             "if" => Ok(Function(control_if)),
             "eval" | "." => Ok(Function(eval)),
