@@ -1,5 +1,5 @@
 use crate::element::{Element, ElementError};
-use crate::parser::{parse, ParserError};
+use crate::parser::{ParserError, parse};
 use std::collections::HashMap;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
@@ -25,8 +25,12 @@ impl Environment {
         if let Err(e) = self.evaluate_elements(elements) {
             for item in self.evaluation_history.iter().rev() {
                 match item {
-                    EvaluationOperation::Push => { self.stack.pop(); }
-                    EvaluationOperation::Pop(element) => { self.stack.push(element.clone()); }
+                    EvaluationOperation::Push => {
+                        self.stack.pop();
+                    }
+                    EvaluationOperation::Pop(element) => {
+                        self.stack.push(element.clone());
+                    }
                 }
             }
             Err(e)
@@ -58,33 +62,43 @@ impl Environment {
             Err(EvaluationError::EmptyStack)
         } else {
             let top = self.stack.pop().unwrap();
-            self.evaluation_history.push(EvaluationOperation::Pop(top.clone()));
+            self.evaluation_history
+                .push(EvaluationOperation::Pop(top.clone()));
             Ok(top)
         }
     }
 
     pub(super) fn pop_value(&mut self) -> Result<Element, EvaluationError> {
         let top = self.pop()?;
-        if let Element::Variable(name) = top {
-            self.resolve_value(&name)
-        } else {
-            Ok(top)
+        self.resolve(&top)
+    }
+
+    fn resolve(&self, element: &Element) -> Result<Element, EvaluationError> {
+        match element {
+            Element::Variable(name) => self.resolve_variable(name),
+            Element::Array(array) => Ok(Element::Array(
+                array
+                    .iter()
+                    .map(|e| self.resolve(&e))
+                    .collect::<Result<Vec<Element>, EvaluationError>>()?,
+            )),
+            element => Ok(element.clone()),
         }
     }
 
-    fn resolve_value(&self, name: &String) -> Result<Element, EvaluationError> {
+    fn resolve_variable(&self, name: &String) -> Result<Element, EvaluationError> {
         if let Some(element) = self.variables.get(name) {
-            if let Element::Variable(name2) = element {
-                self.resolve_value(name2)
-            } else {
-                Ok(element.clone())
-            }
+            self.resolve(element)
         } else {
             Err(EvaluationError::UndefinedVariable(name.clone()))
         }
     }
 
-    pub(super) fn assign(&mut self, variable: String, value: Element) -> Result<(), EvaluationError> {
+    pub(super) fn assign(
+        &mut self,
+        variable: String,
+        value: Element,
+    ) -> Result<(), EvaluationError> {
         self.variables.insert(variable, value);
         Ok(())
     }
@@ -121,8 +135,7 @@ impl Display for EvaluationError {
     }
 }
 
-impl Error for EvaluationError {
-}
+impl Error for EvaluationError {}
 
 impl From<ParserError> for EvaluationError {
     fn from(value: ParserError) -> Self {
@@ -155,7 +168,14 @@ mod tests {
         let mut env = Environment::new();
         assert_matches!(env.evaluate("1 2 3"), Ok(()));
         assert_matches!(env.evaluate("+ + +"), Err(EvaluationError::EmptyStack));
-        assert_eq!(env.stack, vec![Element::Integer(1), Element::Integer(2), Element::Integer(3)]);
+        assert_eq!(
+            env.stack,
+            vec![
+                Element::Integer(1),
+                Element::Integer(2),
+                Element::Integer(3)
+            ]
+        );
     }
 
     #[test]
