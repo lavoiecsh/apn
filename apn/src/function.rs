@@ -10,10 +10,12 @@ mod repeat;
 mod eval;
 mod concatenate;
 mod rotate;
+mod append;
 
 use crate::{Environment, EvaluationError};
 
 use crate::function::add::add;
+use crate::function::append::append;
 use crate::function::concatenate::concatenate;
 use crate::function::assign::assign;
 use crate::function::compare::{equal, greater, greater_equal, less, less_equal};
@@ -43,23 +45,30 @@ impl TryFrom<&str> for Function {
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
+            // math
             "add" | "+" => Ok(Function(add)),
             "subtract" | "-" => Ok(Function(subtract)),
             "multiply" | "*" => Ok(Function(multiply)),
             "divide" | "/" => Ok(Function(divide)),
+            // comparison
             "less" | "<" => Ok(Function(less)),
             "less_equal" | "<=" => Ok(Function(less_equal)),
             "equal" | "==" => Ok(Function(equal)),
             "greater" | ">" => Ok(Function(greater)),
             "greater_equal" | ">=" => Ok(Function(greater_equal)),
+            // stack manipulation
             "pop" => Ok(Function(pop)),
             "rotate" => Ok(Function(rotate)),
+            // control flow
             "assign" | "=" => Ok(Function(assign)),
             "if" => Ok(Function(control_if)),
             "eval" | "." => Ok(Function(eval)),
             "repeat" => Ok(Function(repeat)),
             "repeat_eval" => Ok(Function(repeat_eval)),
+            // array manipulation
             "concatenate" => Ok(Function(concatenate)),
+            "append" => Ok(Function(append)),
+            // error
             _ => Err(()),
         }
     }

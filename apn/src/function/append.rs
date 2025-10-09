@@ -1,12 +1,10 @@
-use crate::{Environment, EvaluationError};
-use crate::element::Element;
+use crate::{Element, Environment, EvaluationError};
 
-pub(super) fn concatenate(environment: &mut Environment) -> Result<(), EvaluationError> {
-    if let Ok(Element::Array(b)) = environment.pop() {
+pub(super) fn append(environment: &mut Environment) -> Result<(), EvaluationError> {
+    if let Ok(b) = environment.pop() {
         if let Ok(Element::Array(a)) = environment.pop() {
-            let c = a.into_iter()
-                .chain(b.into_iter())
-                .collect();
+            let mut c = a.clone();
+            c.push(b);
             environment.push(Element::Array(c))
         } else {
             Err(EvaluationError::InvalidStackElements)
@@ -18,17 +16,18 @@ pub(super) fn concatenate(environment: &mut Environment) -> Result<(), Evaluatio
 
 #[cfg(test)]
 mod tests {
-    use std::assert_matches::assert_matches;
     use super::*;
+    use std::assert_matches::assert_matches;
 
     #[test]
-    fn concatenates_two_arrays() {
+    fn appends_value_after_array() {
         let mut env = Environment::new();
-        assert_matches!(env.evaluate("[1] [2] concatenate"), Ok(()));
+        assert_matches!(env.evaluate("[1 2] 3 append"), Ok(()));
         if let Ok(Element::Array(array)) = env.pop() {
-            assert_eq!(array.len(), 2);
+            assert_eq!(array.len(), 3);
             assert_matches!(array[0], Element::Integer(1));
             assert_matches!(array[1], Element::Integer(2));
+            assert_matches!(array[2], Element::Integer(3));
         } else {
             assert!(false);
         }

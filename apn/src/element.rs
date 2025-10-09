@@ -5,6 +5,7 @@ pub enum Element {
     Boolean(bool),
     Integer(i64),
     Float(f64),
+    Char(char),
     Variable(String),
     Function(Function),
     Array(Vec<Element>),
@@ -23,9 +24,12 @@ impl TryFrom<&str> for Element {
         if value == "false" {
             return Ok(Element::Boolean(false));
         }
-        let s = value.split('$').collect::<Vec<&str>>();
-        if s.len() == 2 {
-            return Ok(Element::Variable(s[1].into()));
+        let chars = value.chars().collect::<Vec<char>>();
+        if chars[0] == '$' {
+            return Ok(Element::Variable(chars.iter().skip(1).collect::<String>()));
+        }
+        if chars.len() == 3 && chars[0] == '\'' && chars[2] == '\'' {
+            return Ok(Element::Char(chars[1]));
         }
         if let Ok(function) = Function::try_from(value) {
             return Ok(Element::Function(function));
@@ -70,5 +74,10 @@ mod tests {
         assert_matches!(Element::try_from("3.14"), Ok(Element::Float(3.14)));
         assert_matches!(Element::try_from("1."), Ok(Element::Float(1.)));
         assert_matches!(Element::try_from("1e2"), Ok(Element::Float(1e2)));
+    }
+
+    #[test]
+    fn parses_char_as_char() {
+        assert_matches!(Element::try_from("'a'"), Ok(Element::Char('a')));
     }
 }
