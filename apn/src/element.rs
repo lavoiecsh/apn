@@ -1,4 +1,5 @@
 use crate::function::Function;
+use std::fmt::{Display, Formatter};
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Element {
@@ -11,8 +12,50 @@ pub enum Element {
     Array(Vec<Element>),
 }
 
-#[derive(Debug, PartialEq)]
-pub enum ElementError {}
+impl Element {
+    pub(crate) fn is_string(&self) -> bool {
+        if let Element::Array(elements) = self {
+            elements.iter().all(|e| matches!(e, Element::Char(_)))
+        } else {
+            false
+        }
+    }
+}
+
+impl Display for Element {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Element::Boolean(true) => f.write_str("true"),
+            Element::Boolean(false) => f.write_str("false"),
+            Element::Integer(i) => write!(f, "{}", i),
+            Element::Float(fl) => write!(f, "{}", fl),
+            Element::Char(c) => write!(f, "'{}'", c),
+            Element::Variable(v) => write!(f, "${}", v),
+            Element::Function(fu) => write!(f, "f({})", fu.name()),
+            Element::Array(elements) => {
+                if self.is_string() {
+                    write!(
+                        f,
+                        "\"{}\"",
+                        elements
+                            .iter()
+                            .map(|e| match e {
+                                Element::Char(c) => c.to_string(),
+                                _ => unreachable!("expecting char"),
+                            })
+                            .collect::<String>()
+                    )
+                } else {
+                    f.write_str("[ ")?;
+                    for e in elements {
+                        write!(f, "{} ", e)?;
+                    }
+                    f.write_str("]")
+                }
+            }
+        }
+    }
+}
 
 impl TryFrom<&str> for Element {
     type Error = ();
@@ -25,11 +68,22 @@ impl TryFrom<&str> for Element {
             return Ok(Element::Boolean(false));
         }
         let chars = value.chars().collect::<Vec<char>>();
+        let chars_len = chars.len();
         if chars[0] == '$' {
             return Ok(Element::Variable(chars.iter().skip(1).collect::<String>()));
         }
-        if chars.len() == 3 && chars[0] == '\'' && chars[2] == '\'' {
+        if chars_len == 3 && chars[0] == '\'' && chars[2] == '\'' {
             return Ok(Element::Char(chars[1]));
+        }
+        if chars[0] == '"' && chars[chars.len() - 1] == '"' {
+            return Ok(Element::Array(
+                chars
+                    .into_iter()
+                    .skip(1)
+                    .take(chars_len - 2)
+                    .map(Element::Char)
+                    .collect(),
+            ));
         }
         if let Ok(function) = Function::try_from(value) {
             return Ok(Element::Function(function));

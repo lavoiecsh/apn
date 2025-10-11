@@ -7,7 +7,7 @@ macro_rules! print_stack {
         $environment
             .stack()
             .enumerate()
-            .for_each(|(i, e)| println!("{:3}: {:?}", i, e));
+            .for_each(|(i, e)| println!("{:3}: {}", i, e));
     };
 }
 

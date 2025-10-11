@@ -31,11 +31,15 @@ use crate::function::subtract::subtract;
 use crate::function::rotate::rotate;
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct Function(fn (&mut Environment) -> Result<(), EvaluationError>);
+pub struct Function(&'static str, fn (&mut Environment) -> Result<(), EvaluationError>);
 
 impl Function {
     pub(super) fn execute(&self, environment: &mut Environment) -> Result<(), EvaluationError> {
-        self.0(environment)
+        self.1(environment)
+    }
+
+    pub(super) fn name(&self) -> &'static str {
+        self.0
     }
 }
 
@@ -48,29 +52,29 @@ impl TryFrom<&str> for Function {
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
             // math
-            "add" | "+" => Ok(Function(add)),
-            "subtract" | "-" => Ok(Function(subtract)),
-            "multiply" | "*" => Ok(Function(multiply)),
-            "divide" | "/" => Ok(Function(divide)),
+            "add" | "+" => Ok(Function("+", add)),
+            "subtract" | "-" => Ok(Function("-", subtract)),
+            "multiply" | "*" => Ok(Function("*", multiply)),
+            "divide" | "/" => Ok(Function("/", divide)),
             // comparison
-            "less" | "<" => Ok(Function(less)),
-            "less_equal" | "<=" => Ok(Function(less_equal)),
-            "equal" | "==" => Ok(Function(equal)),
-            "greater" | ">" => Ok(Function(greater)),
-            "greater_equal" | ">=" => Ok(Function(greater_equal)),
+            "less" | "<" => Ok(Function("<", less)),
+            "less_equal" | "<=" => Ok(Function("<=", less_equal)),
+            "equal" | "==" => Ok(Function("==", equal)),
+            "greater" | ">" => Ok(Function(">", greater)),
+            "greater_equal" | ">=" => Ok(Function(">=", greater_equal)),
             // stack manipulation
-            "pop" => Ok(Function(pop)),
-            "rotate" => Ok(Function(rotate)),
+            "pop" => Ok(Function("pop", pop)),
+            "rotate" => Ok(Function("rotate", rotate)),
             // control flow
-            "assign" | "=" => Ok(Function(assign)),
-            "if" => Ok(Function(control_if)),
-            "eval" | "." => Ok(Function(eval)),
-            "repeat" => Ok(Function(repeat)),
-            "repeat_eval" => Ok(Function(repeat_eval)),
+            "assign" | "=" => Ok(Function("=", assign)),
+            "if" => Ok(Function("if", control_if)),
+            "eval" | "." => Ok(Function(".", eval)),
+            "repeat" => Ok(Function("repeat", repeat)),
+            "repeat_eval" | "repeat." => Ok(Function("repeat.", repeat_eval)),
             // array manipulation
-            "concatenate" => Ok(Function(concatenate)),
-            "append" => Ok(Function(append)),
-            "make_array" => Ok(Function(make_array)),
+            "concatenate" | "concat" | "++" => Ok(Function("++", concatenate)),
+            "append" => Ok(Function("append", append)),
+            "make_array" => Ok(Function("make_array", make_array)),
             // error
             _ => Err(()),
         }

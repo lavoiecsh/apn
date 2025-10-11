@@ -1,4 +1,4 @@
-use crate::element::{Element, ElementError};
+use crate::element::{Element};
 use crate::parser::{ParserError, parse};
 use std::collections::HashMap;
 use std::error::Error;
@@ -121,7 +121,6 @@ enum EvaluationOperation {
 pub enum EvaluationError {
     Parser(ParserError),
     EmptyStack,
-    Element(ElementError),
     DivisionByZero,
     FunctionNotApplicable,
     UndefinedVariable(String),
@@ -140,12 +139,6 @@ impl Error for EvaluationError {}
 impl From<ParserError> for EvaluationError {
     fn from(value: ParserError) -> Self {
         EvaluationError::Parser(value)
-    }
-}
-
-impl From<ElementError> for EvaluationError {
-    fn from(value: ElementError) -> Self {
-        EvaluationError::Element(value)
     }
 }
 
