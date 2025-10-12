@@ -67,24 +67,24 @@ impl TryFrom<&str> for Element {
         if value == "false" {
             return Ok(Element::Boolean(false));
         }
-        let chars = value.chars().collect::<Vec<char>>();
-        let chars_len = chars.len();
-        if chars[0] == '$' {
-            return Ok(Element::Variable(chars.iter().skip(1).collect::<String>()));
-        }
-        if chars_len == 3 && chars[0] == '\'' && chars[2] == '\'' {
-            return Ok(Element::Char(chars[1]));
-        }
-        if chars[0] == '"' && chars[chars.len() - 1] == '"' {
-            return Ok(Element::Array(
-                chars
-                    .into_iter()
-                    .skip(1)
-                    .take(chars_len - 2)
-                    .map(Element::Char)
-                    .collect(),
-            ));
-        }
+        // let chars = value.chars().collect::<Vec<char>>();
+        // let chars_len = chars.len();
+        // if chars[0] == '$' {
+        //     return Ok(Element::Variable(chars.iter().skip(1).collect::<String>()));
+        // }
+        // if chars_len == 3 && chars[0] == '\'' && chars[2] == '\'' {
+        //     return Ok(Element::Char(chars[1]));
+        // }
+        // if chars[0] == '"' && chars[chars.len() - 1] == '"' {
+        //     return Ok(Element::Array(
+        //         chars
+        //             .into_iter()
+        //             .skip(1)
+        //             .take(chars_len - 2)
+        //             .map(Element::Char)
+        //             .collect(),
+        //     ));
+        // }
         if let Ok(function) = Function::try_from(value) {
             return Ok(Element::Function(function));
         }
@@ -114,11 +114,6 @@ mod tests {
     }
 
     #[test]
-    fn parses_dollar_as_variable() {
-        assert_matches!(Element::try_from("$some_var_name"), Ok(Element::Variable(name)) if name == String::from("some_var_name"));
-    }
-
-    #[test]
     fn parses_integer_as_integer() {
         assert_matches!(Element::try_from("5"), Ok(Element::Integer(5)));
     }
@@ -128,10 +123,5 @@ mod tests {
         assert_matches!(Element::try_from("3.14"), Ok(Element::Float(3.14)));
         assert_matches!(Element::try_from("1."), Ok(Element::Float(1.)));
         assert_matches!(Element::try_from("1e2"), Ok(Element::Float(1e2)));
-    }
-
-    #[test]
-    fn parses_char_as_char() {
-        assert_matches!(Element::try_from("'a'"), Ok(Element::Char('a')));
     }
 }

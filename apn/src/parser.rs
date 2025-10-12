@@ -1,106 +1,121 @@
 use crate::element::Element;
-use crate::function::Function;
 
 pub(super) fn parse(input: impl Into<String>) -> Result<Vec<Element>, ParserError> {
-    let tokens = input
-        .into()
-        .replace('[', " [ ")
-        .replace(']', " ] ")
-        .split(" ")
-        .filter(|t| !t.is_empty())
-        .map(|s| Token::try_from(s))
-        .collect::<Result<Vec<Token>, ParserError>>()?;
-    let mut parser = Parser::new(&tokens);
-    parser.parse()?;
-    Ok(parser.elements)
+    let chars = input.into().chars().collect::<Vec<char>>();
+    Ok(parse_chars(&chars, 0, 0)?.0)
 }
 
-struct Parser<'a> {
-    tokens: &'a Vec<Token>,
-    elements: Vec<Element>,
+fn parse_chars(
+    chars: &[char],
     depth: usize,
     index: usize,
-}
-
-impl<'a> Parser<'a> {
-    fn new(tokens: &'a Vec<Token>) -> Self {
-        Self {
-            tokens,
-            elements: Vec::new(),
-            depth: 0,
-            index: 0,
-        }
-    }
-
-    fn parse(&mut self) -> Result<usize, ParserError> {
-        while self.index < self.tokens.len() {
-            match &self.tokens[self.index] {
-                Token::Element(element) => {
-                    self.elements.push(element.clone());
-                }
-                Token::Function(function) => {
-                    self.elements.push(Element::Function(function.clone()));
-                }
-                Token::ArrayStart => {
-                    let mut child = Self {
-                        tokens: self.tokens,
-                        elements: Vec::new(),
-                        depth: self.depth + 1,
-                        index: self.index + 1,
-                    };
-                    self.index = child.parse()?;
-                    self.elements.push(Element::Array(child.elements));
-                }
-                Token::ArrayEnd => {
-                    return if self.depth == 0 {
-                        Err(ParserError::NotInsideArray)
-                    } else {
-                        Ok(self.index)
-                    };
-                }
+) -> Result<(Vec<Element>, usize), ParserError> {
+    let mut elements = Vec::new();
+    let mut index = index;
+    while index < chars.len() {
+        match chars[index] {
+            '"' => {
+                let (string, new_index) = read_string(chars, index + 1)?;
+                elements.push(Element::Array(string));
+                index = new_index;
             }
-            self.index += 1;
-        }
-        if self.depth == 0 {
-            Ok(self.index)
-        } else {
-            Err(ParserError::UnterminatedArray)
+            '\'' => {
+                if index + 2 >= chars.len() {
+                    return Err(ParserError::EndOfInput);
+                }
+                if chars[index + 2] != '\'' {
+                    return Err(ParserError::InvalidToken(
+                        chars[index..index + 3].iter().collect(),
+                    ));
+                }
+                elements.push(Element::Char(chars[index + 1]));
+                index += 3;
+            }
+            '$' => {
+                let (element, new_index) = read_variable(chars, index + 1)?;
+                elements.push(element);
+                index = new_index;
+            }
+            '[' => {
+                let (array, new_index) = parse_chars(chars, depth + 1, index + 1)?;
+                elements.push(Element::Array(array));
+                index = new_index;
+            }
+            ']' => {
+                return if depth == 0 {
+                    Err(ParserError::NotInsideArray)
+                } else {
+                    Ok((elements, index + 1))
+                };
+            }
+            ' ' | '\t' | '\n' => {
+                index += 1;
+            }
+            _ => {
+                let (element, new_index) = read_element(chars, index)?;
+                elements.push(element);
+                index = new_index;
+            }
         }
     }
+    Ok((elements, index))
 }
 
-enum Token {
-    Element(Element),
-    Function(Function),
-    ArrayStart,
-    ArrayEnd,
+fn read_string(chars: &[char], index: usize) -> Result<(Vec<Element>, usize), ParserError> {
+    let mut max_index = index;
+    let mut escaped = false;
+    while max_index < chars.len() {
+        match (chars[max_index], escaped) {
+            ('\\', false) => {
+                escaped = true;
+                max_index += 1;
+            }
+            ('"', false) => {
+                break;
+            }
+            _ => {
+                max_index += 1;
+                escaped = false;
+            }
+        }
+    }
+    Ok((chars[index..max_index].iter().cloned().map(Element::Char).collect(), max_index + 1))
+}
+
+fn read_variable(chars: &[char], index: usize) -> Result<(Element, usize), ParserError> {
+    let mut max_index = index;
+    while max_index < chars.len() {
+        match chars[max_index] {
+            'a'..='z' | 'A'..='Z' | '0'..='9' | '_' => max_index += 1,
+            _ => break,
+        }
+    }
+    Ok((Element::Variable(chars[index..max_index].iter().collect()), max_index))
+}
+
+fn read_element(chars: &[char], index: usize) -> Result<(Element, usize), ParserError> {
+    let mut max_index = index;
+    while max_index < chars.len() {
+        match chars[max_index] {
+            ' ' | '\t' | '\n' | '\\' | '[' | ']' | '"' | '$' | '\'' => break,
+            _ => max_index += 1,
+        }
+    }
+    if let Ok(element) = Element::try_from(chars[index..max_index].iter().collect::<String>().as_str()) {
+        Ok((element, max_index))
+    } else {
+        Err(ParserError::EndOfInput)
+    }
 }
 
 #[derive(Debug, PartialEq)]
 pub enum ParserError {
     InvalidToken(String),
     UnterminatedArray,
+    UnterminatedString,
     NotInsideArray,
-}
-
-impl TryFrom<&str> for Token {
-    type Error = ParserError;
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        match value {
-            "[" => Ok(Token::ArrayStart),
-            "]" => Ok(Token::ArrayEnd),
-            _ => {
-                if let Ok(function) = Function::try_from(value) {
-                    Ok(Token::Function(function))
-                } else if let Ok(element) = Element::try_from(value) {
-                    Ok(Token::Element(element))
-                } else {
-                    Err(ParserError::InvalidToken(value.to_string()))
-                }
-            }
-        }
-    }
+    UnknownCharacter,
+    EndOfInput,
 }
 
 #[cfg(test)]
@@ -112,51 +127,66 @@ mod tests {
     fn parses_number_as_element() {
         let result = parse("1");
         assert!(result.is_ok());
-        let tokens = result.unwrap();
-        assert_eq!(tokens.len(), 1);
-        assert_matches!(tokens[0], Element::Integer(1));
+        let elements = result.unwrap();
+        assert_eq!(elements.len(), 1);
+        assert_matches!(elements[0], Element::Integer(1));
     }
 
     #[test]
     fn parses_multiple_numbers_as_elements() {
         let result = parse("1 2 3");
         assert!(result.is_ok());
-        let tokens = result.unwrap();
-        assert_eq!(tokens.len(), 3);
-        assert_matches!(tokens[0], Element::Integer(1));
-        assert_matches!(tokens[1], Element::Integer(2));
-        assert_matches!(tokens[2], Element::Integer(3));
+        let elements = result.unwrap();
+        assert_eq!(elements.len(), 3);
+        assert_matches!(elements[0], Element::Integer(1));
+        assert_matches!(elements[1], Element::Integer(2));
+        assert_matches!(elements[2], Element::Integer(3));
     }
 
     #[test]
     fn parses_arrays() {
         let result = parse("[1 2 3]");
         assert_matches!(result, Ok(_));
-        let tokens = result.unwrap();
-        assert_eq!(tokens.len(), 1);
-        assert_matches!(&tokens[0], Element::Array(array) if array == &vec![Element::Integer(1), Element::Integer(2), Element::Integer(3)]);
+        let elements = result.unwrap();
+        assert_eq!(elements.len(), 1);
+        assert_matches!(&elements[0], Element::Array(array) if array == &vec![Element::Integer(1), Element::Integer(2), Element::Integer(3)]);
     }
 
     #[test]
     fn parses_complex_array() {
         let result = parse("1 [ 2 + ] 3 [ 4 [ 5 ] ]");
         assert_matches!(result, Ok(_));
-        let tokens = result.unwrap();
-        assert_eq!(tokens.len(), 4);
-        assert_matches!(&tokens[0], Element::Integer(1));
-        assert_matches!(&tokens[1], Element::Array(array) if array.len() == 2);
-        if let Element::Array(array) = &tokens[1] {
+        let elements = result.unwrap();
+        assert_eq!(elements.len(), 4);
+        assert_matches!(&elements[0], Element::Integer(1));
+        assert_matches!(&elements[1], Element::Array(array) if array.len() == 2);
+        if let Element::Array(array) = &elements[1] {
             assert_matches!(&array[0], Element::Integer(2));
             assert_matches!(&array[1], Element::Function(_));
         }
-        assert_matches!(&tokens[2], Element::Integer(3));
-        assert_matches!(&tokens[3], Element::Array(array) if array.len() == 2);
-        if let Element::Array(array) = &tokens[3] {
+        assert_matches!(&elements[2], Element::Integer(3));
+        assert_matches!(&elements[3], Element::Array(array) if array.len() == 2);
+        if let Element::Array(array) = &elements[3] {
             assert_matches!(&array[0], Element::Integer(4));
             assert_matches!(&array[1], Element::Array(sub_array) if sub_array.len() == 1);
             if let Element::Array(sub_array) = &array[1] {
                 assert_matches!(&sub_array[0], Element::Integer(5));
             }
         }
+    }
+
+    #[test]
+    fn parses_variables_functions_arrays() {
+        let result = parse("[1 +] $inc = 2 [$inc ] . .");
+        assert_matches!(result, Ok(_));
+        let elements = result.unwrap();
+        assert_eq!(elements.len(), 7);
+        assert_matches!(&elements[0], Element::Array(_));
+        assert_matches!(&elements[1], Element::Variable(name) if name == "inc");
+        assert_matches!(&elements[2], Element::Function(f) if f.name() == "=");
+        assert_matches!(&elements[3], Element::Integer(2));
+        assert_matches!(&elements[4], Element::Array(_));
+        assert_matches!(&elements[5], Element::Function(f) if f.name() == ".");
+        assert_matches!(&elements[6], Element::Function(f) if f.name() == ".");
     }
 }
