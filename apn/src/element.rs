@@ -1,5 +1,6 @@
 use crate::function::Function;
 use std::fmt::{Display, Formatter};
+use crate::EvaluationError;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Element {
@@ -18,6 +19,24 @@ impl Element {
             elements.iter().all(|e| matches!(e, Element::Char(_)))
         } else {
             false
+        }
+    }
+
+    fn as_char(&self) -> Result<char, EvaluationError> {
+        if let Element::Char(c) = self {
+            Ok(*c)
+        } else {
+            Err(EvaluationError::NotACharacter)
+        }
+    }
+
+    pub(crate) fn as_string(&self) -> Result<String, EvaluationError> {
+        if let Element::Array(elements) = self {
+            Ok(elements.iter()
+                .map(Element::as_char)
+                .collect::<Result<String, EvaluationError>>()?)
+        } else {
+            Err(EvaluationError::NotAString)
         }
     }
 }
@@ -67,24 +86,6 @@ impl TryFrom<&str> for Element {
         if value == "false" {
             return Ok(Element::Boolean(false));
         }
-        // let chars = value.chars().collect::<Vec<char>>();
-        // let chars_len = chars.len();
-        // if chars[0] == '$' {
-        //     return Ok(Element::Variable(chars.iter().skip(1).collect::<String>()));
-        // }
-        // if chars_len == 3 && chars[0] == '\'' && chars[2] == '\'' {
-        //     return Ok(Element::Char(chars[1]));
-        // }
-        // if chars[0] == '"' && chars[chars.len() - 1] == '"' {
-        //     return Ok(Element::Array(
-        //         chars
-        //             .into_iter()
-        //             .skip(1)
-        //             .take(chars_len - 2)
-        //             .map(Element::Char)
-        //             .collect(),
-        //     ));
-        // }
         if let Ok(function) = Function::try_from(value) {
             return Ok(Element::Function(function));
         }

@@ -12,6 +12,7 @@ mod concatenate;
 mod rotate;
 mod append;
 mod make_array;
+mod read;
 
 use crate::{Environment, EvaluationError};
 
@@ -26,6 +27,7 @@ use crate::function::eval::eval;
 use crate::function::make_array::make_array;
 use crate::function::multiply::multiply;
 use crate::function::pop::pop;
+use crate::function::read::read;
 use crate::function::repeat::{repeat, repeat_eval};
 use crate::function::subtract::subtract;
 use crate::function::rotate::rotate;
@@ -71,6 +73,7 @@ impl TryFrom<&str> for Function {
             "eval" | "." => Ok(Function(".", eval)),
             "repeat" => Ok(Function("repeat", repeat)),
             "repeat_eval" | "repeat." => Ok(Function("repeat.", repeat_eval)),
+            "read" => Ok(Function("read", read)),
             // array manipulation
             "concatenate" | "concat" | "++" => Ok(Function("++", concatenate)),
             "append" => Ok(Function("append", append)),

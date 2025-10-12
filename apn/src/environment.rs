@@ -1,5 +1,5 @@
-use crate::element::{Element};
-use crate::parser::{ParserError, parse};
+use crate::element::Element;
+use crate::parser::{parse, ParserError};
 use std::collections::HashMap;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
@@ -126,6 +126,9 @@ pub enum EvaluationError {
     UndefinedVariable(String),
     InvalidStackElements,
     CircularVariableReference,
+    NotAString,
+    NotACharacter,
+    IO(String),
 }
 
 impl Display for EvaluationError {
