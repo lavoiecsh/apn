@@ -13,6 +13,7 @@ mod rotate;
 mod append;
 mod make_array;
 mod read;
+mod modulo;
 
 use crate::{Environment, EvaluationError};
 
@@ -25,6 +26,7 @@ use crate::function::control_if::control_if;
 use crate::function::divide::divide;
 use crate::function::eval::eval;
 use crate::function::make_array::make_array;
+use crate::function::modulo::modulo;
 use crate::function::multiply::multiply;
 use crate::function::pop::pop;
 use crate::function::read::read;
@@ -58,6 +60,7 @@ impl TryFrom<&str> for Function {
             "subtract" | "-" => Ok(Function("-", subtract)),
             "multiply" | "*" => Ok(Function("*", multiply)),
             "divide" | "/" => Ok(Function("/", divide)),
+            "modulo" | "%" => Ok(Function("%", modulo)),
             // comparison
             "less" | "<" => Ok(Function("<", less)),
             "less_equal" | "<=" => Ok(Function("<=", less_equal)),
