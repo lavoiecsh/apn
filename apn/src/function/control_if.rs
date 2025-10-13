@@ -4,8 +4,7 @@ use crate::element::Element;
 pub(super) fn control_if(environment: &mut Environment) -> Result<(), EvaluationError> {
     let result_false = environment.pop()?;
     let result_true = environment.pop()?;
-    let condition = environment.pop()?;
-    match condition {
+    match environment.pop_value()? {
         Element::Boolean(true) => environment.push(result_true),
         Element::Boolean(false) => environment.push(result_false),
         _ => Err(EvaluationError::InvalidStackElements),

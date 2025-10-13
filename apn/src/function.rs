@@ -14,6 +14,8 @@ mod append;
 mod make_array;
 mod read;
 mod modulo;
+mod copy;
+mod clear;
 
 use crate::{Environment, EvaluationError};
 
@@ -21,8 +23,10 @@ use crate::function::add::add;
 use crate::function::append::append;
 use crate::function::concatenate::concatenate;
 use crate::function::assign::assign;
+use crate::function::clear::clear;
 use crate::function::compare::{equal, greater, greater_equal, less, less_equal};
 use crate::function::control_if::control_if;
+use crate::function::copy::copy;
 use crate::function::divide::divide;
 use crate::function::eval::eval;
 use crate::function::make_array::make_array;
@@ -70,11 +74,13 @@ impl TryFrom<&str> for Function {
             // stack manipulation
             "pop" => Ok(Function("pop", pop)),
             "rotate" => Ok(Function("rotate", rotate)),
+            "copy" => Ok(Function("copy", copy)),
+            "repeat" => Ok(Function("repeat", repeat)),
+            "clear" => Ok(Function("clear", clear)),
             // control flow
             "assign" | "=" => Ok(Function("=", assign)),
             "if" => Ok(Function("if", control_if)),
             "eval" | "." => Ok(Function(".", eval)),
-            "repeat" => Ok(Function("repeat", repeat)),
             "repeat_eval" | "repeat." => Ok(Function("repeat.", repeat_eval)),
             "read" => Ok(Function("read", read)),
             // array manipulation
