@@ -2,12 +2,18 @@ use crate::element::Element;
 
 pub(super) fn parse(input: impl Into<String>) -> Result<Vec<Element>, ParserError> {
     let chars = input.into().chars().collect::<Vec<char>>();
-    Ok(parse_chars(&chars, 0, 0)?.0)
+    Ok(parse_chars(&chars, ParserState::Empty, 0)?.0)
+}
+
+enum ParserState {
+    Empty,
+    Array,
+    Procedure,
 }
 
 fn parse_chars(
     chars: &[char],
-    depth: usize,
+    state: ParserState,
     index: usize,
 ) -> Result<(Vec<Element>, usize), ParserError> {
     let mut elements = Vec::new();
@@ -37,18 +43,30 @@ fn parse_chars(
                 index = new_index;
             }
             '[' => {
-                let (array, new_index) = parse_chars(chars, depth + 1, index + 1)?;
+                let (array, new_index) = parse_chars(chars, ParserState::Array, index + 1)?;
                 elements.push(Element::Array(array));
                 index = new_index;
             }
             ']' => {
-                return if depth == 0 {
-                    Err(ParserError::NotInsideArray)
-                } else {
-                    Ok((elements, index + 1))
-                };
+                return match state {
+                    ParserState::Empty => Err(ParserError::NotInsideArray),
+                    ParserState::Procedure => Err(ParserError::NotInsideArray),
+                    ParserState::Array => Ok((elements, index + 1)),
+                }
             }
-            ' ' | '\t' | '\n' => {
+            '{' => {
+                let (procedure, new_index) = parse_chars(chars, ParserState::Procedure, index + 1)?;
+                elements.push(Element::Procedure(procedure));
+                index = new_index;
+            }
+            '}' => {
+                return match state {
+                    ParserState::Empty => Err(ParserError::NotInsideProcedure),
+                    ParserState::Array => Err(ParserError::NotInsideProcedure),
+                    ParserState::Procedure => Ok((elements, index + 1)),
+                }
+            }
+            ' ' | '\t' | '\n' | '\r' => {
                 index += 1;
             }
             _ => {
@@ -97,7 +115,7 @@ fn read_element(chars: &[char], index: usize) -> Result<(Element, usize), Parser
     let mut max_index = index;
     while max_index < chars.len() {
         match chars[max_index] {
-            ' ' | '\t' | '\n' | '\\' | '[' | ']' | '"' | '$' | '\'' => break,
+            ' ' | '\t' | '\n' | '\r' | '\\' | '[' | ']' | '{' | '}' | '"' | '$' | '\'' => break,
             _ => max_index += 1,
         }
     }
@@ -111,9 +129,8 @@ fn read_element(chars: &[char], index: usize) -> Result<(Element, usize), Parser
 #[derive(Debug, PartialEq)]
 pub enum ParserError {
     InvalidToken(String),
-    UnterminatedArray,
-    UnterminatedString,
     NotInsideArray,
+    NotInsideProcedure,
     UnknownCharacter,
     EndOfInput,
 }

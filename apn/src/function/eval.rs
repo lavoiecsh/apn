@@ -3,14 +3,13 @@ use crate::{Environment, EvaluationError};
 
 pub(super) fn eval(environment: &mut Environment) -> Result<(), EvaluationError> {
     let element = environment.pop_value()?;
-    match element {
-        Element::Array(elements) => {
-            for e in elements {
-                environment.push(e)?;
-            }
-            Ok(())
+    if let Element::Procedure(elements) = element {
+        for e in elements {
+            environment.push(e)?;
         }
-        _ => environment.push(element),
+        Ok(())
+    } else {
+        environment.push(element)
     }
 }
 
@@ -28,12 +27,10 @@ mod tests {
     }
 
     #[test]
-    fn evaluates_array_as_single_elements() {
+    fn evaluates_array_as_itself() {
         let mut env = Environment::new();
         assert_matches!(env.evaluate("[1 2 3] eval"), Ok(()));
-        assert_matches!(env.pop(), Ok(Element::Integer(3)));
-        assert_matches!(env.pop(), Ok(Element::Integer(2)));
-        assert_matches!(env.pop(), Ok(Element::Integer(1)));
+        assert_matches!(env.pop(), Ok(Element::Array(_)));
         assert_matches!(env.pop(), Err(EvaluationError::EmptyStack));
     }
 
@@ -46,17 +43,17 @@ mod tests {
     }
 
     #[test]
-    fn evaluates_array_with_function() {
+    fn evaluates_procedure_as_single_elements() {
         let mut env = Environment::new();
-        assert_matches!(env.evaluate("[1 2 +] eval"), Ok(()));
+        assert_matches!(env.evaluate("{1 2 +} eval"), Ok(()));
         assert_matches!(env.pop(), Ok(Element::Integer(3)));
         assert_matches!(env.pop(), Err(EvaluationError::EmptyStack));
     }
 
     #[test]
-    fn evaluates_array_with_function_inside_variable() {
+    fn evaluates_procedure_inside_variable() {
         let mut env = Environment::new();
-        assert_matches!(env.evaluate("[1 2 +] $x = $x eval"), Ok(()));
+        assert_matches!(env.evaluate("{1 2 +} $x = $x eval"), Ok(()));
         assert_matches!(env.pop(), Ok(Element::Integer(3)));
         assert_matches!(env.pop(), Err(EvaluationError::EmptyStack));
     }

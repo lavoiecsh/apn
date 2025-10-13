@@ -47,7 +47,7 @@ mod tests {
     #[test]
     fn repeats_and_evaluates_n_times() {
         let mut env = Environment::new();
-        assert_matches!(env.evaluate("1 2 3 4 5 [+] 4 repeat_eval"), Ok(()));
+        assert_matches!(env.evaluate("1 2 3 4 5 {+} 4 repeat_eval"), Ok(()));
         assert_matches!(env.pop(), Ok(Element::Integer(15)));
         assert_matches!(env.pop(), Err(EvaluationError::EmptyStack));
     }

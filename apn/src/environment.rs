@@ -20,7 +20,6 @@ impl Environment {
     }
 
     pub fn evaluate(&mut self, input: impl Into<String>) -> Result<(), EvaluationError> {
-        self.evaluation_history.clear();
         let elements = parse(input)?;
         if let Err(e) = self.evaluate_elements(elements) {
             for item in self.evaluation_history.iter().rev() {
@@ -33,8 +32,10 @@ impl Environment {
                     }
                 }
             }
+            self.evaluation_history.clear();
             Err(e)
         } else {
+            self.evaluation_history.clear();
             Ok(())
         }
     }

@@ -28,10 +28,7 @@ mod tests {
     #[test]
     fn always_divides_as_float() {
         let mut env = Environment::new();
-        env.push(Integer(3)).unwrap();
-        env.push(Integer(2)).unwrap();
-        let result = env.evaluate("/");
-        assert_matches!(result, Ok(()));
+        assert_matches!(env.evaluate("3 2 /"), Ok(()));
         assert_eq!(env.stack_len(), 1);
         assert_matches!(env.pop_value(), Ok(Float(1.5)));
     }
@@ -39,10 +36,8 @@ mod tests {
     #[test]
     fn errs_if_dividing_by_zero() {
         let mut env = Environment::new();
-        env.push(Integer(2)).unwrap();
-        env.push(Integer(0)).unwrap();
-        let result = env.evaluate("/");
-        assert_matches!(result, Err(EvaluationError::DivisionByZero));
+        assert_matches!(env.evaluate("2 0"), Ok(()));
+        assert_matches!(env.evaluate("/"), Err(EvaluationError::DivisionByZero));
         assert_eq!(env.stack_len(), 2);
     }
 }

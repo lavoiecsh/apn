@@ -11,6 +11,7 @@ pub enum Element {
     Variable(String),
     Function(Function),
     Array(Vec<Element>),
+    Procedure(Vec<Element>),
 }
 
 impl Element {
@@ -53,17 +54,7 @@ impl Display for Element {
             Element::Function(fu) => write!(f, "f({})", fu.name()),
             Element::Array(elements) => {
                 if self.is_string() {
-                    write!(
-                        f,
-                        "\"{}\"",
-                        elements
-                            .iter()
-                            .map(|e| match e {
-                                Element::Char(c) => c.to_string(),
-                                _ => unreachable!("expecting char"),
-                            })
-                            .collect::<String>()
-                    )
+                    write!(f, "\"{}\"", self.as_string().unwrap())
                 } else {
                     f.write_str("[ ")?;
                     for e in elements {
@@ -71,6 +62,13 @@ impl Display for Element {
                     }
                     f.write_str("]")
                 }
+            }
+            Element::Procedure(elements) => {
+                f.write_str("{{ ")?;
+                for e in elements {
+                    write!(f, "{} ", e)?;
+                }
+                f.write_str("}}")
             }
         }
     }
