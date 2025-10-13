@@ -1,0 +1,19 @@
+{
+$fib_b . $fib_c =
+$fib_a $fib_b + $fib_b =
+$fib_c . $fib_a =
+}
+$fib_iter =
+
+{
+0 $fib_a =
+1 $fib_b =
+}
+$fib_init =
+
+{
+$fib_init .
+$fib_iter rotate repeat.
+$fib_a .
+}
+$fib =
