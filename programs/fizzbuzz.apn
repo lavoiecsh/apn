@@ -1,0 +1,15 @@
+{
+copy 15 % 0 == rotate "fizzbuzz" rotate
+copy 5 % 0 == rotate "buzz" rotate
+copy 3 % 0 == rotate "fizz" rotate
+if if if
+} $fizzbuzz_check =
+
+{
+$fizzbuzz_n 1 + $fizzbuzz_n = $fizzbuzz_n .
+} $fizzbuzz_inc =
+
+{
+-1 $fizzbuzz_n =
+{ $fizzbuzz_inc . $fizzbuzz_check . } rotate 1 + repeat.
+} $fizzbuzz =
