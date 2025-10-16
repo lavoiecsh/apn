@@ -16,6 +16,7 @@ mod read;
 mod modulo;
 mod copy;
 mod clear;
+mod map;
 
 use crate::{Environment, EvaluationError};
 
@@ -30,6 +31,7 @@ use crate::function::copy::copy;
 use crate::function::divide::divide;
 use crate::function::eval::eval;
 use crate::function::make_array::make_array;
+use crate::function::map::map;
 use crate::function::modulo::modulo;
 use crate::function::multiply::multiply;
 use crate::function::pop::pop;
@@ -87,6 +89,7 @@ impl TryFrom<&str> for Function {
             "concatenate" | "concat" | "++" => Ok(Function("++", concatenate)),
             "append" => Ok(Function("append", append)),
             "make_array" => Ok(Function("make_array", make_array)),
+            "map" => Ok(Function("map", map)),
             // error
             _ => Err(()),
         }
