@@ -17,6 +17,7 @@ mod modulo;
 mod copy;
 mod clear;
 mod map;
+mod range;
 
 use crate::{Environment, EvaluationError};
 
@@ -35,6 +36,7 @@ use crate::function::map::map;
 use crate::function::modulo::modulo;
 use crate::function::multiply::multiply;
 use crate::function::pop::pop;
+use crate::function::range::range;
 use crate::function::read::read;
 use crate::function::repeat::{repeat, repeat_eval};
 use crate::function::subtract::subtract;
@@ -90,6 +92,7 @@ impl TryFrom<&str> for Function {
             "append" => Ok(Function("append", append)),
             "make_array" => Ok(Function("make_array", make_array)),
             "map" => Ok(Function("map", map)),
+            "range" => Ok(Function("range", range)),
             // error
             _ => Err(()),
         }
