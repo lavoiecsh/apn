@@ -4,8 +4,8 @@ use crate::function::Function;
 use crate::function::make_array::make_array;
 
 pub(super) fn map(environment: &mut Environment) -> Result<(), EvaluationError> {
-    if let Element::Procedure(proc) = environment.pop()? {
-        if let Element::Array(array) = environment.pop()? {
+    if let Element::Procedure(proc) = environment.pop_value()? {
+        if let Element::Array(array) = environment.pop_value()? {
             let len = array.len();
             for e in array {
                 environment.push(e)?;

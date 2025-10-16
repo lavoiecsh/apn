@@ -5,11 +5,4 @@ copy 3 % 0 == rotate "fizz" rotate
 if if if
 } $fizzbuzz_check =
 
-{
-$fizzbuzz_n 1 + $fizzbuzz_n = $fizzbuzz_n .
-} $fizzbuzz_inc =
-
-{
--1 $fizzbuzz_n =
-{ $fizzbuzz_inc . $fizzbuzz_check . } rotate 1 + repeat.
-} $fizzbuzz =
+{ 0 rotate range $fizzbuzz_check map } $fizzbuzz =

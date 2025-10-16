@@ -1,8 +1,8 @@
 use crate::{Element, Environment, EvaluationError};
 
 pub(super) fn range(environment: &mut Environment) -> Result<(), EvaluationError> {
-    if let Element::Integer(b) = environment.pop()? {
-        if let Element::Integer(a) = environment.pop()? {
+    if let Element::Integer(b) = environment.pop_value()? {
+        if let Element::Integer(a) = environment.pop_value()? {
             environment.push(Element::Array((a..=b).map(Element::Integer).collect()))
         } else {
             Err(EvaluationError::InvalidStackElements)
